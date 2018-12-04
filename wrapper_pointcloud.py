@@ -12,7 +12,7 @@ sys.path.append("./pointcloud/")
 from pointcloud.get_pointcloud import get_pointcloud_frame
 from pointcloud.pipeline_pc import pointcloud_pipeline
 import argparse
-
+import _thread
 
 def ModuleWrapper(args):
     
@@ -129,7 +129,7 @@ def ModuleWrapper(args):
                 map_time = t_map_e - t_map_s
                 plan_time = t_plan_e - t_plan_s
         
-        if not facing_wall: # if there is a valid target
+        if not facing_wall and target != None: # if there is a valid target
 
             t_ds_st = time.time() # displaying time start
 

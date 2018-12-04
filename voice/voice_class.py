@@ -2,6 +2,9 @@ import sys
 import os
 import time
 from playsound import playsound as play
+import threading
+import _thread
+
 class VoiceInterface(object):
 
   def __init__(self, straight_file = 'straight.wav',
@@ -27,7 +30,6 @@ class VoiceInterface(object):
     center=width/2-0.5
     if len(pat)==0:
         play(self.noway_file)
-        time.sleep(0.7)
         return
     path=[]
     path.append(pat[0]-center)
@@ -46,13 +48,11 @@ class VoiceInterface(object):
         if step == 0 and step!=b:
             play(self.straight_file)
         b=step
-        time.sleep(0.7)
     play(self.STOP_file)
   def play1(self, pat, width):
     center=width/2-0.5
     if len(pat)==0:
         play(self.noway_file)
-        time.sleep(0)
         return
     path=[]
     path.append(pat[0]-center)
@@ -61,15 +61,22 @@ class VoiceInterface(object):
     print(path)
     for step in path:
         if step == 1:
-            play(self.turnleft_file)
+            _thread.start_new_thread(play,(self.turnleft_file,))
+            time.sleep(1)
+            print(x)
         if step == 2:
-            play(self.hardleft_file)
+            _thread.start_new_thread(play,(self.hardleft_file,))
+            time.sleep(1)
+            print("2")
         if step == -1:
-            play(self.turnright_file)
+            _thread.start_new_thread(play,(self.turnright_file,))
+            time.sleep(1)
+            print("-1")
         if step == -2:
             play(self.hardright_file)
         if step == 0:
-            play(self.straight_file)
+            _thread.start_new_thread(play,(self.straight_file,))
+            time.sleep(1)
     play(self.STOP_file)
 
 ## interface working with pointcloud
@@ -79,42 +86,12 @@ class VoiceInterface(object):
         self.prev_path=10
         return
     step=pat[0]
-    if step == -1 and step!=self.prev_path:
-        play(self.turnleft_file)
-    if step == -2 and step!=self.prev_path:
-        play(self.hardleft_file)
-    if step == 1 and step!=self.prev_path:
-        play(self.turnright_file)
-    if step == 2 and step!=self.prev_path:
-        play(self.hardright_file)
-    if step == 0 and step!=self.prev_path:
-        play(self.straight_file)
 
-    self.prev_path = step
-
-  def play3(self, pat, width):
-    center=width/2-0.5
-    if len(pat)==0:
-        play(self.noway_file)
-        self.prev_path=10
-        return
-    path=[]
-    path.append(pat[0]-center)
-    for i in range (1,len(pat)):
-        path.append(pat[i]-pat[i-1])
-    print(path)
-    step=path[0]
     if step == -1 and (step!=self.prev_path or self.count>=5):
         play(self.turnleft_file)
         self.count=0
-    if step == -2 and (step!=self.prev_path or self.count>=5):
-        play(self.hardleft_file)
-        self.count=0
     if step == 1 and (step!=self.prev_path or self.count>=5):
         play(self.turnright_file)
-        self.count=0
-    if step == 2 and (step!=self.prev_path or self.count>=5):
-        play(self.hardright_file)
         self.count=0
     if step == 0 and (step!=self.prev_path or self.count>=5):
         play(self.straight_file)
@@ -139,12 +116,7 @@ class VoiceInterface(object):
         play(self.noway_file)
         self.prev_path=10
         return
-    if len(path)==1:
-        step=path[0]
-    if len(path)==2:
-        step=path[0]*0.8+path[1]*0.2
-    if len(path)==3:
-        step=path[0]*0.7+path[1]*0.2+path[2]*0.1
+    step=path[0]
     if step == -1 and (step!=self.prev_path or self.count>=5):
         play(self.turnleft_file)
         self.count=0
@@ -167,4 +139,7 @@ class VoiceInterface(object):
 if __name__=="__main__":
 
     interface = VoiceInterface()
-    interface.play3([2,2,2,2,2,2,2],5)
+    test=[1,0,0,1,-1,0,1,-1]
+    for a in test:
+        interface.play2([a])
+        time.sleep(1)
